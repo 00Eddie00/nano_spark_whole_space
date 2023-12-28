@@ -23,7 +23,7 @@ def gen_contour(x_coords, y_coords, values, t, d, dirname):
     # plt.scatter(x_coords, y_coords, c=values, cmap='viridis', edgecolors='k')
     plt.xlabel('X Coordinate')
     plt.ylabel('Y Coordinate')
-    plt.title('Concentration Contour Map')
+    plt.title(f'{d} {t}ms Contour Map')
     plt.grid(True)
     plt.savefig(f"{dirname}/{d}_{t}ms.png")
 
@@ -36,7 +36,7 @@ def gen_line(values, relations, a_arr, b_arr, c_arr, nods, t, d, dirname):
     # 使用matplotlib绘制折线图
     plt.plot(concentration)
     # 添加标题和标签
-    plt.title('Concentration Line Chart')
+    plt.title(f'{d} {t}ms Line Chart')
     plt.xlabel('X Coordinate')
     plt.ylabel('Concentration')
     plt.grid(True)
