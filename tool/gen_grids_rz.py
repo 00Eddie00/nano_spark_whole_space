@@ -74,9 +74,9 @@ def open_judge_relation():
         np.save(
             f"../optical_blurring/grids_rz/grids_rz_v3_({my_position_list[position_index][0]},{my_position_list[position_index][1]})",
             grids_rz)
-        np.save(
-            f"../optical_blurring/points_rz/points_rz_v3_({my_position_list[position_index][0]},{my_position_list[position_index][1]})",
-            points_rz)
+        # np.save(
+        #     f"../optical_blurring/points_rz/points_rz_v3_({my_position_list[position_index][0]},{my_position_list[position_index][1]})",
+        #     points_rz)
 
 
 def main():

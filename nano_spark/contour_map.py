@@ -2,8 +2,9 @@ import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import griddata
-from optical_blurring.concentration_matrix_generator_whole import cal_nano_concentration
+from optical_blurring.concentration_matrix_generator_whole import cal_nano_concentration, interpolation_calculation
 from tool.cal_bcnl import cal_elements
+from tool.generate_nano_con import point_scatter
 from tool.tool_mkdir import *
 
 
@@ -28,10 +29,29 @@ def gen_contour(x_coords, y_coords, values, t, d, dirname):
     plt.savefig(f"{dirname}/{d}_{t}ms.png")
 
 
-def gen_line(values, relations, a_arr, b_arr, c_arr, nods, t, d, dirname):
-    concentration = np.empty(301)
-    for i in range(301):
-        concentration[i] = cal_nano_concentration(i, 0, values, relations, a_arr, b_arr, c_arr, nods)
+def gen_line(nano_original_concentration, relations, a_arr, b_arr, c_arr, nods, t, d, dirname, grids_rz,
+             open_original_concentration, coordinates_dict, xy_index, radius_list):
+    concentration = np.empty(501)
+    for i in range(501):
+        if i <= 300:
+            concentration[i] = cal_nano_concentration(i, 0, nano_original_concentration, relations, a_arr, b_arr, c_arr,
+                                                      nods)
+        else:
+            j = 0
+            k = 0
+            radius = i
+            height = k
+            # 取出将其包含在内的网格的rz
+            lower_r, upper_r, lower_z, upper_z = grids_rz[i, j, k]
+            # 插值计算开放空间待插入点浓度
+            concentration[i] = interpolation_calculation(lower_r, upper_r, lower_z, upper_z,
+                                                         radius,
+                                                         height,
+                                                         open_original_concentration,
+                                                         coordinates_dict, nano_original_concentration,
+                                                         xy_index,
+                                                         radius_list, relations, a_arr, b_arr, c_arr,
+                                                         nods)
     plt.figure(figsize=(8, 6))
     # 使用matplotlib绘制折线图
     plt.plot(concentration)
@@ -51,26 +71,47 @@ def main():
     mkdir(f"{name1}")
     mkdir(f"{name2}")
     time_interval = 2 * 10 ** -6 * 100 * 1000
+
     nods = np.loadtxt("../config/nano/4RYRnod.dat", dtype=int) - 1
+    # relations：保存浓度矩阵中，布在纳米空间内的点，所在的非结构网格编号或网格点编号
     relations = np.load("../optical_blurring/relation/refined_relations.npy")
+    # 开放空间网格点坐标
+    open_grids = np.loadtxt("../config/open/open_grid_coordinates.csv", delimiter=",")
+    # 创建一个哈希表（字典）用于存储坐标值与索引的映射
+    coordinates_dict = {(z, r): i for i, (z, r) in enumerate(open_grids)}
+    # xy_index：该文件保存浓度矩阵中，布在纳米空间内的点，与在纳米空间中对应的网格点的i和j（顺序）
+    xy_index = np.load(f"../optical_blurring/xy_list/xy_index.npy")
+    # radius_list：开放空间r方向上0~300的坐标
+    new_open_r = np.flipud(point_scatter(295, 0, 5, k=2, positive=False))
+    radius_list = np.concatenate((new_open_r, (300,)))
     single_area, control_area, near_triangle, index_in_triangle, nix_multiply_l, niy_multiply_l, a_arr, b_arr, c_arr, nmax, total_area = cal_elements(
         "../config/nano/4RYRgridt.dat", "../config/nano/4RYRnod.dat")
+    grids_rz = np.load(f"../optical_blurring/grids_rz/grids_rz_v3_(300,300).npy")
+
     dirnames = ["Ca", "CaF", "CaG"]
     # 500步对应1ms
     time_list = [0, 10, 20, 30, 40, 50, 80]
-    grids = np.loadtxt("../config/nano/4RYRgridt.dat", dtype=np.float64)
-    x_coords = grids[:, 0]
-    y_coords = grids[:, 1]
+    nano_grids = np.loadtxt("../config/nano/4RYRgridt.dat", dtype=np.float64)
+    x_coords = nano_grids[:, 0]
+    y_coords = nano_grids[:, 1]
     nano_path = f"D:\\Projects\\SuYuTong\\DATA\\result\\NANO_{version}_parameters"
+    open_path = f"D:\\Projects\\SuYuTong\\DATA\\result\\OPEN_{version}_parameters"
     for d in dirnames:
         # 初始化各点Ca浓度
         nano_filenames = os.listdir(f"{nano_path}\\{d}")  # 纳米空间目前所有步数的浓度文件
+        open_filenames = os.listdir(f"{open_path}\\{d}")  # 开放空间目前所有步数的浓度文件
+        # start_file = nano_filenames[0]
+        # nano_start_concentration = np.loadtxt(f"{nano_path}\\{d}\\{start_file}")
         for t in time_list:
             step = int(t / time_interval)
             nano_file = nano_filenames[step]
+            open_file = open_filenames[step]
             nano_original_concentration = np.loadtxt(f"{nano_path}\\{d}\\{nano_file}")
-            gen_contour(x_coords, y_coords, nano_original_concentration, t, d, name1)
-            gen_line(nano_original_concentration, relations, a_arr, b_arr, c_arr, nods, t, d, name2)
+            open_original_concentration = np.loadtxt(f"{nano_path}\\{d}\\{open_file}")
+            # nano_original_concentration = np.loadtxt(f"{nano_path}\\{d}\\{nano_file}") / nano_start_concentration
+            # gen_contour(x_coords, y_coords, nano_original_concentration, t, d, name1)
+            gen_line(nano_original_concentration, relations, a_arr, b_arr, c_arr, nods, t, d, name2, grids_rz,
+                     open_original_concentration, coordinates_dict, xy_index, radius_list)
 
 
 if __name__ == "__main__":
