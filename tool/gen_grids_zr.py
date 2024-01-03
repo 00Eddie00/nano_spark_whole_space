@@ -48,9 +48,7 @@ def open_judge_relation():
         d1, d2, d3 = (x_end - 0) // interval + 1, (y_end - 0) // interval + 1, (
                 z_end - 0) // interval + 1  # 801 501 801
         # 待插入点的相邻点
-        grids_rz = np.full((d1, d2, d3, 4), fill_value=-1.0)
-        # 待插入点坐标
-        points_rz = np.full((d1, d2, d3, 2), fill_value=-1.0)
+        grids_zr = np.full((d1, d2, d3, 4), fill_value=-1.0)
         # 801  x上变化
         for i in range(d1):
             x2 = x_squared[i]
@@ -69,20 +67,16 @@ def open_judge_relation():
                     if height >= 7.5 or radius >= 300:
                         # 找到待插入点z的位置的前后坐标
                         lower_z, upper_z = cal_pre_next(z, height)
-                        grids_rz[i, j, k] = lower_r, upper_r, lower_z, upper_z
-                        points_rz[i, j, k] = radius, height
+                        grids_zr[i, j, k] = lower_r, upper_r, lower_z, upper_z
         np.save(
-            f"../optical_blurring/grids_rz/grids_rz_v3_({my_position_list[position_index][0]},{my_position_list[position_index][1]})",
-            grids_rz)
-        np.save(
-            f"../optical_blurring/points_rz/points_rz_v3_({my_position_list[position_index][0]},{my_position_list[position_index][1]})",
-            points_rz)
+            f"../optical_blurring/grids_zr/grids_zr_v3_({my_position_list[position_index][0]},{my_position_list[position_index][1]})",
+            grids_zr)
 
 
 def main():
-    # open_judge_relation()
-    grids_rz = np.load("../optical_blurring/grids_rz/grids_rz_v3_(300,300).npy")
-    print(grids_rz)
+    open_judge_relation()
+    # grids_zr = np.load("../optical_blurring/grids_zr/grids_zr_v3_(300,300).npy")
+    # print(grids_zr)
 
 
 if __name__ == "__main__":

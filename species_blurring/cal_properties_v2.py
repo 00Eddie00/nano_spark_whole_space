@@ -40,7 +40,7 @@ def temporal_plotter(temporal_path, time_interval, save=False):
         return
     # ampl = temporal_fluorescence / temporal_fluorescence[0] - 1  # 振幅，即荧光强度：fluorescence intensity
     ampl = temporal_fluorescence / temporal_fluorescence[0]  # 振幅，即荧光强度（直接用浓度，不用Δ）：fluorescence intensity
-    t = [i * time_interval for i in range(l)]  # 时间，横坐标，，单位ms
+    t = [i * time_interval for i in range(l)]  # 时间，横坐标，单位ms
     # 峰值，峰化时间，荧光强度从峰值衰减50%所需时间，半峰全宽持续时间，半峰全宽开始时间
     peak_value, t_rise, t50, fdhm, fdhm_start, half_value = cal_temporal_properties(t, ampl, time_interval)  # 计算钙火花的各属性
     plt.figure(dpi=300, figsize=(10, 10))

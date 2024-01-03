@@ -28,8 +28,8 @@ def temporal_distribution(dirname, kernel, xy_c_val, z_c_val, position_list, ver
     # position_list_len：3，fluo_dir_list_len：文件个数。存储三个点不同时刻的值
     position_con = np.empty((position_list_len, fluo_dir_list_len))
     max_relations = position_list[position_list_len - 1]
-    # grids_rz：该文件保存开放空间三维坐标正半轴1000*500*500大小的三维矩阵每个点所在的开放空间的网格，之后的浓度矩阵中的任意点均可在其中找到
-    grids_rz = np.load(f"grids_rz/grids_rz_v3_({max_relations[0]},{max_relations[1]}).npy")  # 500,0
+    # grids_zr：该文件保存开放空间三维坐标正半轴1000*500*500大小的三维矩阵每个点所在的开放空间的网格，之后的浓度矩阵中的任意点均可在其中找到
+    grids_rz = np.load(f"grids_zr/grids_rz_v3_({max_relations[0]},{max_relations[1]}).npy")  # 500,0
     # xy_index：该文件保存浓度矩阵中，布在纳米空间内的点，与在纳米空间中对应的网格点的i和j（顺序）
     xy_index = np.load(f"xy_list/xy_index.npy")
     # radius_list：开放空间r方向上0~300的坐标
@@ -84,7 +84,7 @@ def temporal_distribution(dirname, kernel, xy_c_val, z_c_val, position_list, ver
             nano_original_concentration,open_original_concentration：纳米空间原始浓度值和开放空间原始浓度值
             xy_c_val：用于初始化浓度矩阵
             position_list_i：分别取0，300，500
-            grids_rz：该文件保存开放空间三维坐标正半轴1000*500*500大小的三维矩阵每个点所在的开放空间的网格，之后的浓度矩阵中的任意点均可在其中找到
+            grids_zr：该文件保存开放空间三维坐标正半轴1000*500*500大小的三维矩阵每个点所在的开放空间的网格，之后的浓度矩阵中的任意点均可在其中找到
             xy_index：该文件保存浓度矩阵中，布在纳米空间内的点，与在纳米空间中对应的网格点的i和j（顺序）
             radius_list：开放空间r方向上0~300的坐标
             coordinates_dict：（字典）用于存储坐标值与索引的映射

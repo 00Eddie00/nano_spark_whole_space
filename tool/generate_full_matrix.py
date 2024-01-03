@@ -20,7 +20,7 @@ def process_matrix(quarter_matrix):
 def main():
     # 在这里编写你的主要逻辑
     print("Hello, world!")
-    # grids_rz = np.load("../optical_blurring/grids_rz.npy")
+    # grids_zr = np.load("../optical_blurring/grids_zr.npy")
     # points_rz = np.load("../optical_blurring/points_rz.npy")
     # 已知的八分之一矩阵
     quarter_matrix = np.array([

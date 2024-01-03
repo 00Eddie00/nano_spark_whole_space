@@ -2,7 +2,7 @@ from nano_spark.nano_parameters import *
 from tool.cal_bcnl import cal_elements
 from scipy.ndimage import convolve1d
 from tool.generate_nano_con import *
-from ob_parameters import half_length
+from optical_blurring.ob_parameters import half_length
 
 
 # 三维卷积
@@ -104,8 +104,8 @@ def find_point_index_v2(coordinates_dict, target_coordinates):
 
 def cal_nano_concentration(x_i, y_j, nano_original_concentration, relations, a_arr, b_arr, c_arr, nods):
     # x_i, y_j为实际坐标，i、j为数组索引
-    i = np.int(x_i) + 300
-    j = np.int(y_j) + 300
+    i = int(x_i) + 300
+    j = int(y_j) + 300
     # 该点在三角形点上还是内部（包括边界）
     relation = relations[i, j, 0]
     # 三角形编号或点编号
@@ -222,7 +222,7 @@ def interpolation_calculation(lower_r, upper_r, lower_z, upper_z, radius, height
             nano_original_concentration,open_original_concentration：纳米空间原始浓度值和开放空间原始浓度值
             xy_c_val：用于初始化浓度矩阵
             position_list_i：分别取0，300，500
-            grids_rz：该文件保存开放空间三维坐标正半轴1000*500*500大小的三维矩阵每个点所在的开放空间的网格，之后的浓度矩阵中的任意点均可在其中找到
+            grids_zr：该文件保存开放空间三维坐标正半轴1000*500*500大小的三维矩阵每个点所在的开放空间的网格，之后的浓度矩阵中的任意点均可在其中找到
             xy_index：该文件保存浓度矩阵中，布在纳米空间内的点，与在纳米空间中对应的网格点的i和j（顺序）
             radius_list：开放空间r方向上0~300的坐标
             coordinates_dict：（字典）用于存储坐标值与索引的映射
