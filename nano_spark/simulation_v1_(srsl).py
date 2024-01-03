@@ -361,18 +361,11 @@ def nano_spark(is_continue, total_steps, version):
 
 
 if __name__ == '__main__':
-    total_steps, is_continue, version = execute_steps()
-    # # 是否根据已有浓度继续运行
-    # is_continue = False
-    # # 执行步数
-    # total_steps = 120000
-    # # 参数版本
-    # version = "basic"
-    if version == "basic":
-        global K_Calmodulin_PLUS
-        K_Calmodulin_PLUS = 345
-        print(K_Calmodulin_PLUS)
+    # 是否根据已有浓度继续运行
+    is_continue = False
+    # 执行步数
+    total_steps = 120000
+    # 参数版本
+    version = "basic"
 
-    # nano_spark(is_continue, total_steps, version)
-    # 运行结束后，每隔100步保留一个文件，删除多余文件
-    # del_version_file(version)
+    nano_spark(is_continue, total_steps, version)

@@ -72,7 +72,7 @@ GCaMP6f_T = 0.01
 # SL_T = 165
 
 
-# 缓冲物（基本情况）v1
+# 缓冲物（基本情况）v1 Calmodulin Troponin C只在大空间有，SR SL只在小空间有
 # Calmodulin
 # K_Calmodulin_PLUS = 100000
 # K_Calmodulin_MINUS = 31
