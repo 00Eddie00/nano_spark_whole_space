@@ -64,8 +64,7 @@ def gen_line(nano_original_concentration, relations, a_arr, b_arr, c_arr, nods, 
     plt.savefig(f"{dirname}/{d}_{t}ms.png")
 
 
-def main():
-    version = "v1"
+def draw_contour(version):
     folder = f"../result/{version}_nano_concentration_graph"
     name1 = f"{folder}/nano_contour_map"
     name2 = f"{folder}/line_chart"
@@ -108,8 +107,6 @@ def main():
         # 初始化各点Ca浓度
         nano_filenames = os.listdir(f"{nano_path}\\{d}")  # 纳米空间目前所有步数的浓度文件
         open_filenames = os.listdir(f"{open_path}\\{d}")  # 开放空间目前所有步数的浓度文件
-        # start_file = nano_filenames[0]
-        # nano_start_concentration = np.loadtxt(f"{nano_path}\\{d}\\{start_file}")
         for t in time_list:
             print(f"{d}_{t}ms开始")
             step = int(t / time_interval)
@@ -117,11 +114,15 @@ def main():
             open_file = open_filenames[step]
             nano_original_concentration = np.loadtxt(f"{nano_path}\\{d}\\{nano_file}")
             open_original_concentration = np.loadtxt(f"{open_path}\\{d}\\{open_file}")
-            # nano_original_concentration = np.loadtxt(f"{nano_path}\\{d}\\{nano_file}") / nano_start_concentration
             gen_contour(x_coords, y_coords, nano_original_concentration, t, d, name1)
             gen_contour(r_coords, z_coords, open_original_concentration, t, d, name3)
             gen_line(nano_original_concentration, relations, a_arr, b_arr, c_arr, nods, t, d, name2, grids_rz,
                      open_original_concentration, coordinates_dict, xy_index, radius_list)
+
+
+def main():
+    version = "basic_(GCaMP6f_T=1)_(10D)"
+    draw_contour(version)
 
 
 if __name__ == "__main__":

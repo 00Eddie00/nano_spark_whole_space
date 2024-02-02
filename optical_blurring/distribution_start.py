@@ -39,18 +39,22 @@ def draw(version, species, my_position_list, is_conv):
         temporal_plotter(temporal_path, time_interval, save=True)
 
 
-def main():
+def pre_conv_parameter(version):
     # 是否从原有文件继续生成
     is_continue = False
     # 观察点
     my_position_list = [[300, 300]]
     # 参数版本
-    version = "basic"
     dirname = "CaF"
     common_temporal_distribution(version, dirname, my_position_list, is_continue)
     dirname = "CaG"
     # 生成连续空间的浓度矩阵
     common_temporal_distribution(version, dirname, my_position_list, is_continue)
+
+
+def main():
+    version = "basic_(GCaMP6f_T=1)"
+    pre_conv_parameter(version)
 
 
 if __name__ == "__main__":

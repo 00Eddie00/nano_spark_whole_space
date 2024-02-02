@@ -1,14 +1,15 @@
-from cal_nano_element import *
-from nano_spark.open.cal_open_elements import *
+import matplotlib
+from matplotlib import pyplot as plt
+from cal_nano_element_v1 import *
+from nano_spark.nano_contour_map import draw_contour
+from nano_spark.open.cal_open_elements_v1 import *
 from nano_parameters import *
-from nano_spark.open.open_parameters import open_grid_file_name
-from tool.del_files import del_version_file
 from tool.tool_mkdir import *
 import os
 import re
 
 
-def nano_spark(is_continue, total_steps, version):
+def nano_spark(is_continue, total_steps, version, do_save):
     # ryr通道开放时间对应的步数
     release_step = int(RELEASE_TIME / DT)
     # 开放空间网格坐标
@@ -91,23 +92,14 @@ def nano_spark(is_continue, total_steps, version):
         nano_cab = np.loadtxt(f"{path}{dir_nano}{dirnames[1]}\\{last_filename}")
         open_cab = np.loadtxt(f"{path}{dir_open}{dirnames[1]}\\{last_filename}")
         # 0123分别对应 Calmodulin、Troponin C、SR membrane、SL membrane
-        nano_cab1 = nano_cab[:, 0]
+        # nano_cab1 = nano_cab[:, 0]
         open_cab1 = open_cab[:, 0]
-        nano_cab2 = nano_cab[:, 1]
+        # nano_cab2 = nano_cab[:, 1]
         open_cab2 = open_cab[:, 1]
-        nano_cab3 = nano_cab[:, 2]
-        open_cab3 = open_cab[:, 2]
-        nano_cab4 = nano_cab[:, 3]
-        open_cab4 = open_cab[:, 3]
-
-        # # nano_cab1 = nano_cab[:, 0]
-        # open_cab1 = open_cab[:, 0]
-        # # nano_cab2 = nano_cab[:, 1]
-        # open_cab2 = open_cab[:, 1]
-        # nano_cab3 = nano_cab[:, 0]
-        # # open_cab3 = open_cab[:, 2]
-        # nano_cab4 = nano_cab[:, 1]
-        # # open_cab4 = open_cab[:, 3]
+        nano_cab3 = nano_cab[:, 0]
+        # open_cab3 = open_cab[:, 2]
+        nano_cab4 = nano_cab[:, 1]
+        # open_cab4 = open_cab[:, 3]
 
         # 初始化各点CaF浓度
         filenames = os.listdir(f"{path}{dir_nano}{dirnames[2]}\\")  # 目前所有步数的浓度文件
@@ -192,9 +184,7 @@ def nano_spark(is_continue, total_steps, version):
 
         # 记录初始时刻纳米空间缓冲物浓度值，纳米空间只有SR membrane、SL membrane
         cab_file_name = f"{nano_c_cab_prefix}00000000.csv"
-        # np.savetxt(cab_file_name, np.stack((nano_cab1, nano_cab2, nano_cab3, nano_cab4), 1))
         np.savetxt(cab_file_name, np.stack((nano_cab3, nano_cab4), 1))
-
         print(cab_file_name, "SAVED")
 
         # 开放空间*****************************************************************************************
@@ -215,7 +205,6 @@ def nano_spark(is_continue, total_steps, version):
 
         # 记录初始时刻开放空间缓冲物浓度值，开放空间只有Calmodulin、Troponin C
         cab_file_name = f"{open_c_cab_prefix}00000000.csv"
-        # np.savetxt(cab_file_name, np.stack((open_cab1, open_cab2, open_cab3, open_cab4), 1))
         np.savetxt(cab_file_name, np.stack((open_cab1, open_cab2), 1))
         print(cab_file_name, "SAVED")
     # 开始计算***************************************************************************************************************
@@ -224,17 +213,15 @@ def nano_spark(is_continue, total_steps, version):
         # c_ca_out、c_caf_out直接取开放空间z=0.0,r=305.0处的值
         c_ca_out = open_f[69]
         c_caf_out = open_caf[69]
-        # new_nano_f, new_nano_cag, new_nano_cab1, new_nano_cab2, new_nano_cab3, new_nano_cab4 = nano_calculation_f(k_ryr,
-        #                                                                                                           nano_f,
-        #                                                                                                           nano_caf,
-        #                                                                                                           nano_cag,
-        #                                                                                                           nano_cab1,
-        #                                                                                                           nano_cab2,
-        #                                                                                                           nano_cab3,
-        #                                                                                                           nano_cab4,
-        #                                                                                                           ca_jsr,
-        #                                                                                                           c_ca_out,
-        #                                                                                                           bcnl_elements)
+        new_nano_f, new_nano_cag, new_nano_cab3, new_nano_cab4 = nano_calculation_f(k_ryr,
+                                                                                    nano_f,
+                                                                                    nano_caf,
+                                                                                    nano_cag,
+                                                                                    nano_cab3,
+                                                                                    nano_cab4,
+                                                                                    ca_jsr,
+                                                                                    c_ca_out,
+                                                                                    bcnl_elements)
         '''
         k_ryr：ryr通道处钙离子释放的扩散系数
         nano_f, nano_caf, nano_cag, nano_cab3, nano_cab4：当前步数纳米空间ca、caf、cag、SR membrane、SL membrane浓度
@@ -242,12 +229,6 @@ def nano_spark(is_continue, total_steps, version):
         c_ca_out：边界浓度
         bcnl_elements：和三角形有关的参数
         '''
-        new_nano_f, new_nano_cag, new_nano_cab3, new_nano_cab4 = nano_calculation_f(k_ryr, nano_f, nano_caf, nano_cag,
-                                                                                    nano_cab3,
-                                                                                    nano_cab4,
-                                                                                    ca_jsr,
-                                                                                    c_ca_out,
-                                                                                    bcnl_elements)
         '''
         nano_f, nano_caf：当前步数纳米空间ca、caf浓度
         c_caf_out：边界浓度
@@ -268,21 +249,9 @@ def nano_spark(is_continue, total_steps, version):
         # 开放空间不计算交界处，直接取纳米空间计算结果
         open_f[:3] = out_boundary_c_ca
         open_caf[:3] = out_boundary_c_caf
-        # new_open_f, new_open_cab1, new_open_cab2, new_open_cab3, new_open_cab4 = open_calculation_f(open_f, open_caf,
-        #                                                                                             open_cab1,
-        #                                                                                             open_cab2,
-        #                                                                                             open_cab3,
-        #                                                                                             open_cab4,
-        #                                                                                             open_grid_coordinates,
-        #                                                                                             neighbors,
-        #                                                                                             coefficients)
-        '''
-        open_f, open_caf, open_cab1, open_cab2：当前步数纳米空间ca、caf、Calmodulin、Troponin C浓度
-        open_grid_coordinates：开放空间网格坐标
-        neighbors：开放空间每个点的邻点
-        coefficients：开放空间每个点的系数
-        '''
-        new_open_f, new_open_cab1, new_open_cab2 = open_calculation_f(open_f, open_caf, open_cab1, open_cab2,
+        new_open_f, new_open_cab1, new_open_cab2 = open_calculation_f(open_f, open_caf,
+                                                                      open_cab1,
+                                                                      open_cab2,
                                                                       open_grid_coordinates,
                                                                       neighbors,
                                                                       coefficients)
@@ -295,64 +264,76 @@ def nano_spark(is_continue, total_steps, version):
         new_open_caf = open_calculation_caf(open_f, open_caf, open_grid_coordinates, neighbors, coefficients)
 
         # 保存文件****************************************************************************************
-        # 生成编号
-        length = len(str(i))
-        rest_name = "0" * (8 - length) + str(i)
 
         # 纳米空间******************************************************************************************
-        # 记录该时刻钙离子浓度值
-        ca_file_name = f"{nano_c_ca_prefix}{rest_name}.csv"
-        np.savetxt(ca_file_name, new_nano_f)
         nano_f = np.copy(new_nano_f)
-        print(ca_file_name, "SAVED")
-        # 记录该时刻荧光（GCaMP6f）钙离子浓度值
-        cag_file_name = f"{nano_c_cag_prefix}{rest_name}.csv"
-        np.savetxt(cag_file_name, new_nano_cag)
         nano_cag = np.copy(new_nano_cag)
-        print(cag_file_name, "SAVED")
-        # 记录该时刻荧光（Fluo-3）钙离子浓度值
-        caf_file_name = f"{nano_c_caf_prefix}{rest_name}.csv"
-        np.savetxt(caf_file_name, new_nano_caf)
         nano_caf = np.copy(new_nano_caf)
-        print(caf_file_name, "SAVED")
-        # 记录该时刻缓冲物浓度值
-        cab_file_name = f"{nano_c_cab_prefix}{rest_name}.csv"
-        np.savetxt(cab_file_name, np.stack((new_nano_cab3, new_nano_cab4), 1))
-        # np.savetxt(cab_file_name, np.stack((new_nano_cab1, new_nano_cab2, new_nano_cab3, new_nano_cab4), 1))
-        # nano_cab1 = np.copy(new_nano_cab1)
-        # nano_cab2 = np.copy(new_nano_cab2)
         nano_cab3 = np.copy(new_nano_cab3)
         nano_cab4 = np.copy(new_nano_cab4)
-        print(cab_file_name, "SAVED")
 
-        # 开放空间******************************************************************************************************
-        # 记录初始时刻开放空间钙离子浓度值
-        open_ca_file_name = f"{open_c_ca_prefix}{rest_name}.csv"
-        np.savetxt(open_ca_file_name, new_open_f)
         open_f = np.copy(new_open_f)
-        print(open_ca_file_name, "SAVED")
-
-        # 记录初始时刻开放空间荧光（GCaMP6f）钙离子浓度值
-        open_cag_file_name = f"{open_c_cag_prefix}{rest_name}.csv"
         new_open_cag = open_cag
-        np.savetxt(open_cag_file_name, new_open_cag)
-        print(open_cag_file_name, "SAVED")
-
-        # 记录初始时刻开放空间荧光（Fluo-3）钙离子浓度值
-        open_caf_file_name = f"{open_c_caf_prefix}{rest_name}.csv"
-        np.savetxt(open_caf_file_name, new_open_caf)
         open_caf = np.copy(new_open_caf)
-        print(open_caf_file_name, "SAVED")
-
-        # 记录初始时刻开放空间缓冲物浓度值
-        open_cab_file_name = f"{open_c_cab_prefix}{rest_name}.csv"
-        # np.savetxt(open_cab_file_name, np.stack((new_open_cab1, new_open_cab2, new_open_cab3, new_open_cab4), 1))
-        np.savetxt(open_cab_file_name, np.stack((new_open_cab1, new_open_cab2), 1))
         open_cab1 = np.copy(new_open_cab1)
         open_cab2 = np.copy(new_open_cab2)
-        # open_cab3 = np.copy(new_open_cab3)
-        # open_cab4 = np.copy(new_open_cab4)
-        print(open_cab_file_name, "SAVED")
+        print(np.average(nano_f))
+
+        if i % do_save == 0:
+            # 生成编号
+            length = len(str(i))
+            rest_name = "0" * (8 - length) + str(i)
+            # 记录该时刻钙离子浓度值
+            ca_file_name = f"{nano_c_ca_prefix}{rest_name}.csv"
+            np.savetxt(ca_file_name, new_nano_f)
+            # nano_f = np.copy(new_nano_f)
+            print(ca_file_name, "SAVED")
+            # 记录该时刻荧光（GCaMP6f）钙离子浓度值
+            cag_file_name = f"{nano_c_cag_prefix}{rest_name}.csv"
+            np.savetxt(cag_file_name, new_nano_cag)
+            # nano_cag = np.copy(new_nano_cag)
+            print(cag_file_name, "SAVED")
+            # 记录该时刻荧光（Fluo-3）钙离子浓度值
+            caf_file_name = f"{nano_c_caf_prefix}{rest_name}.csv"
+            np.savetxt(caf_file_name, new_nano_caf)
+            # nano_caf = np.copy(new_nano_caf)
+            print(caf_file_name, "SAVED")
+            # 记录该时刻缓冲物浓度值
+            cab_file_name = f"{nano_c_cab_prefix}{rest_name}.csv"
+            np.savetxt(cab_file_name, np.stack((new_nano_cab3, new_nano_cab4), 1))
+            # nano_cab1 = np.copy(new_nano_cab1)
+            # nano_cab2 = np.copy(new_nano_cab2)
+            # nano_cab3 = np.copy(new_nano_cab3)
+            # nano_cab4 = np.copy(new_nano_cab4)
+            print(cab_file_name, "SAVED")
+
+            # 开放空间******************************************************************************************************
+            # 记录初始时刻开放空间钙离子浓度值
+            open_ca_file_name = f"{open_c_ca_prefix}{rest_name}.csv"
+            np.savetxt(open_ca_file_name, new_open_f)
+            # open_f = np.copy(new_open_f)
+            print(open_ca_file_name, "SAVED")
+
+            # 记录初始时刻开放空间荧光（GCaMP6f）钙离子浓度值
+            open_cag_file_name = f"{open_c_cag_prefix}{rest_name}.csv"
+            # new_open_cag = open_cag
+            np.savetxt(open_cag_file_name, new_open_cag)
+            print(open_cag_file_name, "SAVED")
+
+            # 记录初始时刻开放空间荧光（Fluo-3）钙离子浓度值
+            open_caf_file_name = f"{open_c_caf_prefix}{rest_name}.csv"
+            np.savetxt(open_caf_file_name, new_open_caf)
+            # open_caf = np.copy(new_open_caf)
+            print(open_caf_file_name, "SAVED")
+
+            # 记录初始时刻开放空间缓冲物浓度值
+            open_cab_file_name = f"{open_c_cab_prefix}{rest_name}.csv"
+            np.savetxt(open_cab_file_name, np.stack((new_open_cab1, new_open_cab2), 1))
+            # open_cab1 = np.copy(new_open_cab1)
+            # open_cab2 = np.copy(new_open_cab2)
+            # open_cab3 = np.copy(new_open_cab3)
+            # open_cab4 = np.copy(new_open_cab4)
+            print(open_cab_file_name, "SAVED")
 
         # 控制ryr通道关闭*************************************************************************
         if i == release_step:
@@ -360,11 +341,19 @@ def nano_spark(is_continue, total_steps, version):
 
 
 if __name__ == '__main__':
+    matplotlib.use('TkAgg')
+    plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
+    plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
     # 是否根据已有浓度继续运行
     is_continue = False
     # 执行步数
-    total_steps = 120000
+    total_steps = 40000
+    do_save = 100
     # 参数版本
-    version = "basic"
-
-    nano_spark(is_continue, total_steps, version)
+    version = "basic_(GCaMP6f_T=1)_(K=2_5)"
+    nano_spark(is_continue, total_steps, version, do_save)
+    draw_contour(version)
+    # 创建一个形状为 (3, 3)、常数值为 5.0 的数组，默认数据类型为 float64
+    # pre_conv_parameter(version)
+    # 运行结束后，每隔100步保留一个文件，删除多余文件
+    # del_version_file(version)

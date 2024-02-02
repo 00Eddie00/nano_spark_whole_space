@@ -1,7 +1,12 @@
+import matplotlib
+from matplotlib import pyplot as plt
+
 from cal_nano_element import *
+from nano_spark.nano_contour_map import draw_contour
 from nano_spark.open.cal_open_elements import *
 from nano_parameters import *
 from nano_spark.open.open_parameters import open_grid_file_name
+from optical_blurring.distribution_start import pre_conv_parameter
 from tool.del_files import del_version_file
 from tool.tool_mkdir import *
 import os
@@ -284,8 +289,9 @@ def nano_spark(is_continue, total_steps, version, do_save):
         open_cab2 = np.copy(new_open_cab2)
         open_cab3 = np.copy(new_open_cab3)
         open_cab4 = np.copy(new_open_cab4)
+        print(np.average(nano_f))
 
-        if current_step % do_save == 0:
+        if i % do_save == 0:
             # 生成编号
             length = len(str(i))
             rest_name = "0" * (8 - length) + str(i)
@@ -347,13 +353,19 @@ def nano_spark(is_continue, total_steps, version, do_save):
 
 
 if __name__ == '__main__':
+    matplotlib.use('TkAgg')
+    plt.rcParams['font.sans-serif'] = ['SimHei']  # 用来正常显示中文标签
+    plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
     # 是否根据已有浓度继续运行
     is_continue = False
     # 执行步数
-    total_steps = 120000
+    total_steps = 40000
     do_save = 100
     # 参数版本
-    version = "basic"
+    version = "basic_(GCaMP6f_T=1)_(K=2_5)"
     nano_spark(is_continue, total_steps, version, do_save)
+    draw_contour(version)
+    # 创建一个形状为 (3, 3)、常数值为 5.0 的数组，默认数据类型为 float64
+    # pre_conv_parameter(version)
     # 运行结束后，每隔100步保留一个文件，删除多余文件
-    del_version_file(version)
+    # del_version_file(version)

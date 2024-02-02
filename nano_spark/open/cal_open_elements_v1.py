@@ -23,30 +23,21 @@ def neighbors_concentration(point_id, concentration, p32, p12, p23, p21):
     return f32, f12, f23, f21
 
 
-def cal_dye_and_buffers(f, caf, cab1, cab2, cab3, cab4, grid_coordinates):
+def cal_dye_and_buffers(f, caf, cab1, cab2, grid_coordinates):
     point_count = len(grid_coordinates)
     j_fdye = np.zeros(point_count)
     j_1 = np.zeros(point_count)
     j_2 = np.zeros(point_count)
-    j_3 = np.zeros(point_count)
-    j_4 = np.zeros(point_count)
     new_cab1 = np.zeros(point_count)
     new_cab2 = np.zeros(point_count)
-    new_cab3 = np.zeros(point_count)
-    new_cab4 = np.zeros(point_count)
     for i in range(0, point_count):
         j_fdye[i] = -K_F3_PLUS * f[i] * (F3_T - caf[i]) + K_F3_MINUS * caf[i]
         j_1[i] = -K_Calmodulin_PLUS * f[i] * (Calmodulin_T - cab1[i]) + K_Calmodulin_MINUS * cab1[i]
         j_2[i] = -K_TroponinC_PLUS * f[i] * (TroponinC_T - cab2[i]) + K_TroponinC_MINUS * cab2[i]
-        j_3[i] = -K_SR_PLUS * f[i] * (SR_T - cab3[i]) + K_SR_MINUS * cab3[i]
-        j_4[i] = -K_SL_PLUS * f[i] * (SL_T - cab4[i]) + K_SL_MINUS * cab4[i]
-
     for i in range(0, point_count):
         new_cab1[i] = (-j_1[i]) * DT + cab1[i]
         new_cab2[i] = (-j_2[i]) * DT + cab2[i]
-        new_cab3[i] = (-j_3[i]) * DT + cab3[i]
-        new_cab4[i] = (-j_4[i]) * DT + cab4[i]
-    return j_fdye, j_1, j_2, j_3, j_4, new_cab1, new_cab2, new_cab3, new_cab4
+    return j_fdye, j_1, j_2, new_cab1, new_cab2
 
 
 '''
@@ -58,10 +49,9 @@ def cal_dye_and_buffers(f, caf, cab1, cab2, cab3, cab4, grid_coordinates):
 
 
 # 计算ca
-def open_calculation_f(f, caf, cab1, cab2, cab3, cab4, grid_coordinates, neighbors, coefficients):
+def open_calculation_f(f, caf, cab1, cab2, grid_coordinates, neighbors, coefficients):
     #  计算缓冲物和染料
-    j_fdye, j_1, j_2, j_3, j_4, new_cab1, new_cab2, new_cab3, new_cab4 = cal_dye_and_buffers(f, caf, cab1, cab2, cab3,
-                                                                                             cab4, grid_coordinates)
+    j_fdye, j_1, j_2, new_cab1, new_cab2 = cal_dye_and_buffers(f, caf, cab1, cab2, grid_coordinates)
     # 网格点个数
     point_count = len(grid_coordinates)
     # 临时数组
@@ -71,7 +61,7 @@ def open_calculation_f(f, caf, cab1, cab2, cab3, cab4, grid_coordinates, neighbo
     for i in range(0, 10):
         # 不计算边界点，从3开始
         for j in range(3, point_count):
-            j_buffers = j_1[j] + j_2[j] + j_3[j] + j_4[j]
+            j_buffers = j_1[j] + j_2[j]
             # 缓冲物流量
             # 此处没有Jout，因为交界处在纳米空间中计算过了，开放空间只是用它的值，无需再计算
             # 当前点的四个邻点
@@ -95,7 +85,7 @@ def open_calculation_f(f, caf, cab1, cab2, cab3, cab4, grid_coordinates, neighbo
             temp[j] = ((item1 + j_fdye[j] + j_buffers) * DT + f[j]) / (1 + item3 * DT)
         # 保存本次迭代结果
         last = np.copy(temp)
-    return last, new_cab1, new_cab2, new_cab3, new_cab4
+    return last, new_cab1, new_cab2
 
 
 '''

@@ -3,33 +3,25 @@ import numpy as np
 from tool.cal_bcnl import *
 
 
-def cal_dye_and_buffers(f, caf, cag, cab1, cab2, cab3, cab4):
+def cal_dye_and_buffers(f, caf, cag, cab3, cab4):
     j_fdye = np.zeros(NP)
     j_gdye = np.zeros(NP)
-    j_1 = np.zeros(NP)
-    j_2 = np.zeros(NP)
     j_3 = np.zeros(NP)
     j_4 = np.zeros(NP)
     new_cag = np.zeros(NP)
-    new_cab1 = np.zeros(NP)
-    new_cab2 = np.zeros(NP)
     new_cab3 = np.zeros(NP)
     new_cab4 = np.zeros(NP)
     for i in range(0, NP):
         j_fdye[i] = -K_F3_PLUS * f[i] * (F3_T - caf[i]) + K_F3_MINUS * caf[i]
         j_gdye[i] = -K_GCaMP6f_PLUS * f[i] * (GCaMP6f_T - cag[i]) + K_GCaMP6f_MINUS * cag[i]
-        j_1[i] = -K_Calmodulin_PLUS * f[i] * (Calmodulin_T - cab1[i]) + K_Calmodulin_MINUS * cab1[i]
-        j_2[i] = -K_TroponinC_PLUS * f[i] * (TroponinC_T - cab2[i]) + K_TroponinC_MINUS * cab2[i]
         j_3[i] = -K_SR_PLUS * f[i] * (SR_T - cab3[i]) + K_SR_MINUS * cab3[i]
         j_4[i] = -K_SL_PLUS * f[i] * (SL_T - cab4[i]) + K_SL_MINUS * cab4[i]
 
     for i in range(0, NP):
         new_cag[i] = (-j_gdye[i]) * DT + cag[i]
-        new_cab1[i] = (-j_1[i]) * DT + cab1[i]
-        new_cab2[i] = (-j_2[i]) * DT + cab2[i]
         new_cab3[i] = (-j_3[i]) * DT + cab3[i]
         new_cab4[i] = (-j_4[i]) * DT + cab4[i]
-    return j_fdye, j_gdye, j_1, j_2, j_3, j_4, new_cag, new_cab1, new_cab2, new_cab3, new_cab4
+    return j_fdye, j_gdye, j_3, j_4, new_cag, new_cab3, new_cab4
 
 
 '''
@@ -42,13 +34,9 @@ def cal_dye_and_buffers(f, caf, cag, cab1, cab2, cab3, cab4):
 
 
 # 计算Ca
-def nano_calculation_f(k_ryr, f, caf, cag, cab1, cab2, cab3, cab4, ca_jsr, c_ca_out, bcnl_elements):
+def nano_calculation_f(k_ryr, f, caf, cag, cab3, cab4, ca_jsr, c_ca_out, bcnl_elements):
     # 计算染料和缓冲物
-    j_fdye, j_gdye, j_1, j_2, j_3, j_4, new_cag, new_cab1, new_cab2, new_cab3, new_cab4 = cal_dye_and_buffers(f, caf,
-                                                                                                              cag, cab1,
-                                                                                                              cab2,
-                                                                                                              cab3,
-                                                                                                              cab4)
+    j_fdye, j_gdye, j_3, j_4, new_cag, new_cab3, new_cab4 = cal_dye_and_buffers(f, caf, cag, cab3, cab4)
     # 计算三角形系数
     '''
         single_area：每个三角形面积数组
@@ -67,7 +55,7 @@ def nano_calculation_f(k_ryr, f, caf, cag, cab1, cab2, cab3, cab4, ca_jsr, c_ca_
     # 迭代十次
     for j in range(0, 10):
         for i in range(0, NP):
-            item_1 = (j_fdye[i] + j_gdye[i] + j_1[i] + j_2[i] + j_3[i] + j_4[i]) * control_area[i]
+            item_1 = (j_fdye[i] + j_gdye[i]  + j_3[i] + j_4[i]) * control_area[i]
             # S*{J_Gdye+J_Fdye+J_buffers }
             item_2, item_3, item_4, item_5, item_6, item_7 = 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
             # nmax=9
@@ -143,7 +131,7 @@ def nano_calculation_f(k_ryr, f, caf, cag, cab1, cab2, cab3, cab4, ca_jsr, c_ca_
         last = np.copy(temp)
     # 这一步的值保存到new_f
     new_f = np.copy(last)
-    return new_f, new_cag, new_cab1, new_cab2, new_cab3, new_cab4
+    return new_f, new_cag, new_cab3, new_cab4
 
 
 '''

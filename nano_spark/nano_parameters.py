@@ -10,9 +10,15 @@ B_INNER = 0  # 内部
 B_INFLOW = 2  # 入流
 B_OUTFLOW = 4  # 出流
 
+# 扩散系数的倍数
+K = 2.5
+
 # 出入流参数
 INITIAL_C_CA = 0.0001  # 肌质中钙离子初始浓度 mM
 D_CA = 3.5 * 10 ** 8  # 自由钙离子的扩散系数
+D_CA_OUT = D_CA * K  # 自由钙离子在出流边界的扩散系数
+D_CA_OPEN = D_CA  # 自由钙离子在开放空间的扩散系数
+
 D_F = 2 * 10 ** 7  # 染料的扩散系数
 S = 2 * np.pi * 0.5 * 15  # ryr通道表面积
 K_RYR = 1.24368 * 10 ** 10 / S  # ryr通道处钙离子释放的扩散系数
@@ -28,30 +34,36 @@ K_F3_PLUS = 80000
 # K_F3_MINUS = 90
 K_F3_MINUS = 57.6
 F3_T = 0.05
-D_CAF = 2 * 10 ** 7   # 染料的扩散系数
+D_CAF = 2 * 10 ** 7  # 染料的扩散系数
+D_CAF_OUT = D_CAF * K  # 染料在出流边界的扩散系数
+D_CAF_OPEN = D_CAF  # 染料在出流边界的扩散系数
 
 # GCaMP6f
-K_GCaMP6f_PLUS = 27000
-K_GCaMP6f_MINUS = 17
-GCaMP6f_T = 0.01
+# K_GCaMP6f_PLUS = 27000
+# K_GCaMP6f_MINUS = 17
+K_GCaMP6f_PLUS = 1473.75
+K_GCaMP6f_MINUS = 3.93
+GCaMP6f_T = 1
+# GCaMP6f_T = 0.01
 
-# # 缓冲物（基本情况）basic小空间大空间都有
-# # Calmodulin
-# K_Calmodulin_PLUS = 100000
-# K_Calmodulin_MINUS = 31
-# Calmodulin_T = 0.036
-# # Troponin C
-# K_TroponinC_PLUS = 125000
-# K_TroponinC_MINUS = 250
-# TroponinC_T = 0.07
-# # SR membrane
-# K_SR_PLUS = 115000
-# K_SR_MINUS = 100
-# SR_T = 0.047
-# # SL membrane
-# K_SL_PLUS = 115000
-# K_SL_MINUS = 1000
-# SL_T = 1.124
+
+# 缓冲物（基本情况）basic小空间大空间都有
+# Calmodulin
+K_Calmodulin_PLUS = 100000
+K_Calmodulin_MINUS = 31
+Calmodulin_T = 0.036
+# Troponin C
+K_TroponinC_PLUS = 125000
+K_TroponinC_MINUS = 250
+TroponinC_T = 0.07
+# SR membrane
+K_SR_PLUS = 115000
+K_SR_MINUS = 100
+SR_T = 0.047
+# SL membrane
+K_SL_PLUS = 115000
+K_SL_MINUS = 1000
+SL_T = 1.124
 
 # # 缓冲物（情况一）暂时没跑过
 # # Calmodulin
@@ -131,21 +143,21 @@ GCaMP6f_T = 0.01
 # 缓冲物（基本情况）v2.3
 # 只调 SL_T = 16.5 SR_T = 1.3
 # Calmodulin
-K_Calmodulin_PLUS = 100000
-K_Calmodulin_MINUS = 31
-Calmodulin_T = 0.036
-# Troponin C
-K_TroponinC_PLUS = 125000
-K_TroponinC_MINUS = 250
-TroponinC_T = 0.07
-# SR membrane
-K_SR_PLUS = 7692.307
-K_SR_MINUS = 100
-SR_T = 1.3
-# SL membrane
-K_SL_PLUS = 909.0909
-K_SL_MINUS = 1000
-SL_T = 16.5
+# K_Calmodulin_PLUS = 100000
+# K_Calmodulin_MINUS = 31
+# Calmodulin_T = 0.036
+# # Troponin C
+# K_TroponinC_PLUS = 125000
+# K_TroponinC_MINUS = 250
+# TroponinC_T = 0.07
+# # SR membrane
+# K_SR_PLUS = 7692.307
+# K_SR_MINUS = 100
+# SR_T = 1.3
+# # SL membrane
+# K_SL_PLUS = 909.0909
+# K_SL_MINUS = 1000
+# SL_T = 16.5
 
 # 网格参数
 nano_grid_file_name = "../config/nano/4RYRgridt.dat"

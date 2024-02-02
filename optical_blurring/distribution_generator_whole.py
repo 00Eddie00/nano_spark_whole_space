@@ -29,7 +29,7 @@ def temporal_distribution(dirname, kernel, xy_c_val, z_c_val, position_list, ver
     position_con = np.empty((position_list_len, fluo_dir_list_len))
     max_relations = position_list[position_list_len - 1]
     # grids_zr：该文件保存开放空间三维坐标正半轴1000*500*500大小的三维矩阵每个点所在的开放空间的网格，之后的浓度矩阵中的任意点均可在其中找到
-    grids_rz = np.load(f"grids_zr/grids_rz_v3_({max_relations[0]},{max_relations[1]}).npy")  # 500,0
+    grids_rz = np.load(f"grids_zr/grids_zr_v3_({max_relations[0]},{max_relations[1]}).npy")  # 500,0
     # xy_index：该文件保存浓度矩阵中，布在纳米空间内的点，与在纳米空间中对应的网格点的i和j（顺序）
     xy_index = np.load(f"xy_list/xy_index.npy")
     # radius_list：开放空间r方向上0~300的坐标
@@ -119,7 +119,7 @@ def optical_blurring(dirname, position_list, version, is_conv, is_continue):
     # 用于初始化浓度矩阵
     xy_c_val = C_VAL
     z_c_val = C_VAL
-    result_set = f"../result/NANO_{version}_parameters"
+    result_set = f"../result/{version}"
     mkdir(f"{result_set}")
     # 得到不同时刻三个点的结果
     '''
